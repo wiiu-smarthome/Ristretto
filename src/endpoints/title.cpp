@@ -62,6 +62,33 @@ void registerTitleEndpoints(HttpServer &server) {
             DEBUG_FUNCTION_LINE_ERR("Error at ACPGetTitleMetaXml");
             return HttpResponse{500, "text/plain", "Couldn't get the title! Error at ACPGetTitleMetaXml"};
         }
+        return HttpResponse{200, "text/plain", getTitleLongname(meta)};
+    });
+
+    server.when("/title/current/id")->requested([](const HttpRequest &req) {
+        ACPTitleId id;
+        ACPResult res = ACPGetTitleIdOfMainApplication(&id);
+        if (res) {
+            DEBUG_FUNCTION_LINE_ERR("Error at ACPGetTitleIdOfMainApplication");
+            return HttpResponse{500, "text/plain", "Couldn't get the current title! Error at ACPGetTitleIdOfMainApplication"};
+        }
+
+        return HttpResponse{200, "text/plain", std::to_string(id)};
+    });
+
+    server.when("/title/current/info")->requested([](const HttpRequest &req) {
+        ACPTitleId id;
+        ACPResult res = ACPGetTitleIdOfMainApplication(&id);
+        if (res) {
+            DEBUG_FUNCTION_LINE_ERR("Error at ACPGetTitleIdOfMainApplication");
+            return HttpResponse{500, "text/plain", "Couldn't get the current title! Error at ACPGetTitleIdOfMainApplication"};
+        }
+        ACPMetaXml *meta = new ACPMetaXml;
+        res              = ACPGetTitleMetaXml(id, meta);
+        if (res) {
+            DEBUG_FUNCTION_LINE_ERR("Error at ACPGetTitleMetaXml");
+            return HttpResponse{500, "text/plain", "Couldn't get the title! Error at ACPGetTitleMetaXml"};
+        }
 
         int handle = MCP_Open();
         if (handle < 0) {
@@ -80,16 +107,6 @@ void registerTitleEndpoints(HttpServer &server) {
         return HttpResponse{200, ret};
     });
 
-    server.when("/title/current/id")->requested([](const HttpRequest &req) {
-        ACPTitleId id;
-        ACPResult res = ACPGetTitleIdOfMainApplication(&id);
-        if (res) {
-            DEBUG_FUNCTION_LINE_ERR("Error at ACPGetTitleIdOfMainApplication");
-            return HttpResponse{500, "text/plain", "Couldn't get the current title! Error at ACPGetTitleIdOfMainApplication"};
-        }
-
-        return HttpResponse{200, "text/plain", std::to_string(id)};
-    });
 
     server.when("/title/current/name")->requested([](const HttpRequest &req) {
         ACPTitleId id;
