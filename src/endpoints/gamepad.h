@@ -1,4 +1,4 @@
-#include "../aroma/globals.h"
+#include "../plugin/globals.h"
 #include "../utils/logger.h"
 #include "http.hpp"
 
