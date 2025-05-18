@@ -1,18 +1,30 @@
 # Ristretto
 
 <p align="center">
-  <img src=./.github/ristretto.png>
+  <img src=./.github/ristretto.png width="256">
   <br>
   <sub>This plugin is named after the type of coffee. The logo is a sort-of depiction of what it looks like.</sub>
 </p>
 
 Ristretto is a plugin for Aroma that provides a foundation for smart home automation on the Wii U with a HTTP server. This will allow for other devices to communicate with the Wii U, and can then be used to extend existing home automation sofftware.
 
+Currently, integrations exist for [Homebridge](https://github.com/wiiu-smarthome/homebridge-wiiu) and [Home Assistant](https://github.com/wiiu-smarthome/ha-wiiu), with hopefully more in the future. These platforms can serve as a bridge for an external service, like Google Home or Alexa, to integrate with the console. Have fun!
+
+For more information, see the [Wii U Smart Home Project](https://github.com/wiiu-smarthome).
+
+## Technical Limitations
+There are some limitations that currently prevent this from perfection. Some are unavoidable, others can be mitigated or solved in the future.
+
+1. **The console cannot be powered on remotely.** This may be solved in the future by emulating a GamePad or Wii Remote, but the console does not support [Wake-on-LAN](https://en.wikipedia.org/wiki/Wake-on-LAN). In the meantime, consider buying another smart device that serves as a "power button pusher".
+2. **Problems with the application being in the background state.** If the Home menu, electronic manual, or any system applet is open, the server will not respond. Because of how Cafe OS, the Wii U's operating system, is designed, the server ends up getting put in the "background" where it loses access to some system resources and memory. Some operations like trying to shutdown the console will cause a crash. Some operations, like switching to the e-manual or home button menu, are one time operations. You can switch in, but you cannot switch out. Blog post on this coming soon, there may be a solution. 
+3. **Offline server in Wii mode.** At this point, the console is no longer in Cafe OS. The "fix" to this would be implementing a server through IOS patching, which is being considered but not ready yet. However, patching the Wii IOS would be the solution for running a server on the original Wii console, which would be amazing. Stay tuned.
+
 ## Installation
 
 1. Copy the file `Ristretto.wps` into `sd:/wiiu/environments/aroma/plugins`.
 2. Requires the [WiiUPluginLoaderBackend](https://github.com/wiiu-env/WiiUPluginLoaderBackend) in `sd:/wiiu/environments/aroma/modules`.
 2. Requires the [NotificationModule](https://github.com/wiiu-env/NotificationModule) in `sd:/wiiu/environments/aroma/modules`.
+3. Requires the [SDHotSwapModule](https://github.com/wiiu-env/SDHotSwapModule) in `sd:/wiiu/environments/aroma/modules`.
 
 Start the environment and the backend should load the plugin. By default, the port runs on :8572. You'll know the server is working when you open `http://(wiiu_ip_address):8572` in your browser and you should see the text "Ristretto".
 
@@ -22,6 +34,8 @@ For building you need:
 
 - [wups](https://github.com/Maschell/WiiUPluginSystem)
 - [wut](https://github.com/devkitpro/wut)
+- [libnotifications](https://github.com/wiiu-env/libnotifications)
+- [libsdutils](https://github.com/wiiu-env/libsdutils)
 
 Install them (in this order) according to their README's. Don't forget the dependencies of the libs itself.
 
