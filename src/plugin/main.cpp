@@ -1,3 +1,4 @@
+#include "../endpoints/account.h"
 #include "../endpoints/cec.h"
 #include "../endpoints/device.h"
 #include "../endpoints/gamepad.h"
@@ -16,6 +17,7 @@
 #include <avm/cec.h>
 #include <coreinit/thread.h>
 #include <nn/ac.h>
+#include <nn/act/client_cpp.h>
 #include <notifications/notifications.h>
 #include <sdutils/sdutils.h>
 #include <tve/cec.h>
@@ -72,6 +74,7 @@ void make_server() {
             registerCECEndpoints(server);
         }
 
+        registerAccountEndpoints(server);
         registerDeviceEndpoints(server);
         registerGamepadEndpoints(server);
         registerLaunchEndpoints(server);
@@ -107,7 +110,7 @@ void make_server_on_thread() {
     try {
         std::jthread thready(make_server);
 
-        auto threadHandle = (OSThread*) thready.native_handle();
+        auto threadHandle = (OSThread *) thready.native_handle();
         OSSetThreadName(threadHandle, "Ristretto");
         OSSetThreadAffinity(threadHandle, OS_THREAD_ATTRIB_AFFINITY_CPU2);
 
@@ -262,6 +265,7 @@ INITIALIZE_PLUGIN() {
 DEINITIALIZE_PLUGIN() {
     DEBUG_FUNCTION_LINE("Ristretto deinitializing.");
     stop_server();
+    nn::act::Finalize();
     SDUtils_DeInitLibrary();
     NotificationModule_DeInitLibrary();
     WHBLogUdpDeinit();
@@ -272,6 +276,7 @@ DEINITIALIZE_PLUGIN() {
 ON_APPLICATION_START() {
     nn::ac::Initialize();
     nn::ac::ConnectAsync();
+    nn::act::Initialize();
 
     // CEC seems to be consistent when it starts every time an application starts.
     if (enableCEC) {
