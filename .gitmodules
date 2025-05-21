@@ -1,3 +1,6 @@
 [submodule "src/MiniJson"]
 	path = src/MiniJson
 	url = https://github.com/zsmj2017/MiniJson
+[submodule "src/libwupsxx"]
+	path = src/libwupsxx
+	url = https://github.com/dkosmari/libwupsxx

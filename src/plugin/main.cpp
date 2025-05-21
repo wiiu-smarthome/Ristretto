@@ -14,6 +14,7 @@
 #include "globals.h"
 #include "http.hpp"
 #include <avm/cec.h>
+#include <coreinit/thread.h>
 #include <nn/ac.h>
 #include <notifications/notifications.h>
 #include <sdutils/sdutils.h>
@@ -105,6 +106,11 @@ void stop_server() {
 void make_server_on_thread() {
     try {
         std::jthread thready(make_server);
+
+        auto threadHandle = (OSThread*) thready.native_handle();
+        OSSetThreadName(threadHandle, "Ristretto");
+        OSSetThreadAffinity(threadHandle, OS_THREAD_ATTRIB_AFFINITY_CPU2);
+
         thready.detach();
     } catch (std::exception &e) {
         DEBUG_FUNCTION_LINE_INFO("Exception thrown trying to make the server thread: %s\n", e.what());
