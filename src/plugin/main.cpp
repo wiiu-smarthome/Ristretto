@@ -35,8 +35,8 @@
     If not set correctly, the loader will refuse to use the plugin.
 **/
 WUPS_PLUGIN_NAME("Ristretto")
-WUPS_PLUGIN_DESCRIPTION("home automation attempt");
-WUPS_PLUGIN_VERSION("v1.0");
+WUPS_PLUGIN_DESCRIPTION("HTTP Server for IoT communication");
+WUPS_PLUGIN_VERSION("v1.1");
 WUPS_PLUGIN_AUTHOR("ItzSwirlz");
 WUPS_PLUGIN_LICENSE("BSD");
 
