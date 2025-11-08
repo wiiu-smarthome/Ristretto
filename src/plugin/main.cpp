@@ -1,6 +1,7 @@
 #include "../endpoints/account.h"
 #include "../endpoints/cec.h"
 #include "../endpoints/device.h"
+#include "../endpoints/fp.h"
 #include "../endpoints/gamepad.h"
 #include "../endpoints/launch.h"
 #include "../endpoints/odd.h"
@@ -76,6 +77,7 @@ void make_server() {
 
         registerAccountEndpoints(server);
         registerDeviceEndpoints(server);
+        registerFPEndpoints(server);
         registerGamepadEndpoints(server);
         registerLaunchEndpoints(server);
         registerODDEndpoints(server);
