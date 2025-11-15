@@ -1,8 +1,7 @@
 #include "device.h"
 
 void registerDeviceEndpoints(HttpServer &server) {
-    // Returns the following deivce information in JSON: The serial ID, model number, software version and hardware version.
-    // TODO: Look at what else from MCPSysProdSettings we should return
+    // Returns all information from MCPSysProdSettings in JSON, along with the Cafe OS and hardware version.
     server.when("/device/info")->requested([](const HttpRequest &req) {
         int handle = MCP_Open();
         if (handle < 0) {
@@ -33,8 +32,25 @@ void registerDeviceEndpoints(HttpServer &server) {
         }
 
         miniJson::Json::_object ret;
-        ret["serial_id"]        = settings.serial_id;
-        ret["model_number"]     = settings.model_number;
+
+        // MCPSysProdSettings structure
+        ret["product_area"]   = settings.product_area;
+        ret["eeprom_version"] = settings.eeprom_version;
+        ret["game_region"]    = settings.game_region;
+        ret["ntsc_pal"]       = settings.ntsc_pal;
+
+        ret["wifi_5ghz_country_code"]          = settings.wifi_5ghz_country_code;
+        ret["wifi_5ghz_country_code_revision"] = settings.wifi_5ghz_country_code_revision;
+
+        ret["code_id"]      = settings.code_id;
+        ret["serial_id"]    = settings.serial_id;
+        ret["model_number"] = settings.model_number;
+
+        // TODO: what exactly is this "version"?
+        ret["version"] = std::format("{:d}", (unsigned int) settings.version);
+
+
+        // Version information
         ret["system_version"]   = std::format("{:d}.{:d}.{:d}{}", version->major, version->minor, version->patch, version->region);
         ret["hardware_version"] = std::format("{:d}", hw_ver);
 
