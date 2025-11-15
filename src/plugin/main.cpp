@@ -1,4 +1,5 @@
 #include "../endpoints/account.h"
+#include "../endpoints/aroma.h"
 #include "../endpoints/cec.h"
 #include "../endpoints/device.h"
 #include "../endpoints/fp.h"
@@ -11,23 +12,30 @@
 #include "../endpoints/switch.h"
 #include "../endpoints/title.h"
 #include "../endpoints/vwii.h"
+
 #include "../languages.h"
 #include "../utils/logger.h"
 #include "globals.h"
+
 #include "http.hpp"
+
 #include <avm/cec.h>
 #include <coreinit/thread.h>
+
 #include <nn/ac.h>
 #include <nn/act/client_cpp.h>
+
 #include <notifications/notifications.h>
 #include <sdutils/sdutils.h>
 #include <tve/cec.h>
+
 #include <wups.h>
 #include <wups/config/WUPSConfigItemBoolean.h>
 #include <wups/config/WUPSConfigItemIntegerRange.h>
 #include <wups/config/WUPSConfigItemMultipleValues.h>
 #include <wups/config/WUPSConfigItemStub.h>
 #include <wups/config_api.h>
+#include <wups_backend/api.h>
 
 #include <sys/iosupport.h>
 
@@ -76,6 +84,7 @@ void make_server() {
         }
 
         registerAccountEndpoints(server);
+        registerAromaEndpoints(server);
         registerDeviceEndpoints(server);
         registerFPEndpoints(server);
         registerGamepadEndpoints(server);
@@ -212,6 +221,7 @@ INITIALIZE_PLUGIN() {
     WHBLogUdpInit();
     NotificationModule_InitLibrary();
     SDUtils_InitLibrary();
+    WUPSBackend_InitLibrary();
 
     DEBUG_FUNCTION_LINE("Hello world! - Ristretto");
 
@@ -268,6 +278,7 @@ DEINITIALIZE_PLUGIN() {
     DEBUG_FUNCTION_LINE("Ristretto deinitializing.");
     stop_server();
     nn::act::Finalize();
+    WUPSBackend_DeInitLibrary();
     SDUtils_DeInitLibrary();
     NotificationModule_DeInitLibrary();
     WHBLogUdpDeinit();

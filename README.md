@@ -36,6 +36,7 @@ For building you need:
 - [wut](https://github.com/devkitpro/wut)
 - [libnotifications](https://github.com/wiiu-env/libnotifications)
 - [libsdutils](https://github.com/wiiu-env/libsdutils)
+- [libwupsbackend](https://github.com/wiiu-env/libwupsbackend)
 
 Install them (in this order) according to their README's. Don't forget the dependencies of the libs itself.
 
