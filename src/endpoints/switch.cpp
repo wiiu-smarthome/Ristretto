@@ -1,6 +1,11 @@
-#include "switch.h"
+#include "switch.hpp"
 
-void registerSwitchEndpoints(HttpServer &server) {
+#include "../utils/logger.h"
+
+#include <nn/acp.h>
+#include <sysapp/switch.h>
+
+void SwitchEndpoints::registerEndpoints(HttpServer &server) {
     // Switch to the current title's manual.
     //
     // This is interesting! If the title has no manual (because none exists, or like, you aren't

@@ -1,7 +1,8 @@
-#include "account.h"
+#include "account.hpp"
+
 #include <nn/act/client_cpp.h>
 
-void registerAccountEndpoints(HttpServer &server) {
+void AccountEndpoints::registerEndpoints(HttpServer &server) {
     server.when("/account/id")->requested([](const HttpRequest &req) {
         char accountId[nn::act::AccountIdSize];
 
@@ -16,4 +17,13 @@ void registerAccountEndpoints(HttpServer &server) {
         nn::act::PrincipalId pid = nn::act::GetPrincipalId();
         return HttpResponse{200, "text/plain", std::format("{:d}", pid)};
     });
+}
+
+void AccountEndpoints::on_application_starts() {
+    // Connections reset every time an app starts
+    nn::act::Initialize();
+}
+
+void AccountEndpoints::on_application_ends() {
+    nn::act::Finalize();
 }

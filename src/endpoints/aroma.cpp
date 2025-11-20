@@ -1,13 +1,12 @@
-#include "aroma.h"
+#include "aroma.hpp"
+
 #include "../utils/logger.h"
-#include "http.hpp"
 
 #include <wups_backend/PluginContainer.h>
-#include <wups_backend/PluginData.h>
 #include <wups_backend/PluginUtils.h>
-#include <wups_backend/import_defines.h>
+#include <wups_backend/api.h>
 
-void registerAromaEndpoints(HttpServer &server) {
+void AromaEndpoints::registerEndpoints(HttpServer &server) {
     server.when("/aroma/plugins")->requested([](const HttpRequest &req) {
         PluginBackendApiErrorType err = PLUGIN_BACKEND_API_ERROR_NONE;
 
@@ -32,4 +31,12 @@ void registerAromaEndpoints(HttpServer &server) {
 
         return HttpResponse{200, res};
     });
+}
+
+void AromaEndpoints::on_initialize_plugin() {
+    WUPSBackend_InitLibrary();
+}
+
+void AromaEndpoints::on_deinitialize_plugin() {
+    WUPSBackend_DeInitLibrary();
 }

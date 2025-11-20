@@ -1,6 +1,11 @@
-#include "device.h"
+#include "device.hpp"
 
-void registerDeviceEndpoints(HttpServer &server) {
+#include "../utils/logger.h"
+
+#include <coreinit/bsp.h>
+#include <coreinit/mcp.h>
+
+void DeviceEndpoints::registerEndpoints(HttpServer &server) {
     // Returns all information from MCPSysProdSettings in JSON, along with the Cafe OS and hardware version.
     server.when("/device/info")->requested([](const HttpRequest &req) {
         int handle = MCP_Open();

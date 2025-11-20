@@ -1,10 +1,8 @@
-#include "fp.h"
-#include "http.hpp"
-#include "nn/fp/fp_cpp.h"
+#include "fp.hpp"
 
-#include <nn/fp.h>
+#include <nn/fp/fp_cpp.h>
 
-void registerFPEndpoints(HttpServer &server) {
+void FPEndpoints::registerEndpoints(HttpServer &server) {
     server.when("/fp/comment")->requested([](const HttpRequest &req) {
         nn::fp::Comment myComment;
 

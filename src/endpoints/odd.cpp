@@ -1,6 +1,10 @@
-#include "odd.h"
+#include "odd.hpp"
 
-void registerODDEndpoints(HttpServer &server) {
+#include "../utils/logger.h"
+
+#include <coreinit/mcp.h>
+
+void ODDEndpoints::registerEndpoints(HttpServer &server) {
     // Returns the title ID if what is in the ODD.
     // FIXME: Only works for Wii U titles - add Wii Game support
     server.when("/odd/titleid")->requested([](const HttpRequest &req) {
