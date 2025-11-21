@@ -1,5 +1,11 @@
-#include "title.h"
+#include "title.hpp"
+
 #include "../languages.h" // for access to titleLang
+
+#include "../utils/logger.h"
+
+#include <coreinit/mcp.h>
+#include <nn/acp.h>
 
 inline char *getTitleLongname(ACPMetaXml *meta) {
     char *ret;
@@ -48,7 +54,7 @@ inline char *getTitleLongname(ACPMetaXml *meta) {
     return ret;
 }
 
-void registerTitleEndpoints(HttpServer &server) {
+void TitleEndpoints::registerEndpoints(HttpServer &server) {
     server.when("/title/current")->requested([](const HttpRequest &req) {
         ACPTitleId id;
         ACPResult res = ACPGetTitleIdOfMainApplication(&id);

@@ -1,6 +1,10 @@
-#include "vwii.h"
+#include "vwii.hpp"
 
-void registervWiiEndpoints(HttpServer &server) {
+#include "../utils/logger.h"
+
+#include <nn/cmpt.h>
+
+void VWiiEndpoints::registerEndpoints(HttpServer &server) {
     // Launches the vWii System Menu (both TV and GamePad)
     server.when("/vwii/launch/menu")->posted([](const HttpRequest &req) {
         DEBUG_FUNCTION_LINE_INFO("Launching vWii Menu.");

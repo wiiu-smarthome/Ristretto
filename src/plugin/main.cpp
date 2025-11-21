@@ -1,17 +1,17 @@
-#include "../endpoints/account.h"
-#include "../endpoints/aroma.h"
-#include "../endpoints/cec.h"
-#include "../endpoints/device.h"
-#include "../endpoints/fp.h"
-#include "../endpoints/gamepad.h"
-#include "../endpoints/launch.h"
-#include "../endpoints/odd.h"
-#include "../endpoints/power.h"
-#include "../endpoints/remote.h"
-#include "../endpoints/sdhc.h"
-#include "../endpoints/switch.h"
-#include "../endpoints/title.h"
-#include "../endpoints/vwii.h"
+#include "../endpoints/account.hpp"
+#include "../endpoints/aroma.hpp"
+#include "../endpoints/cec.hpp"
+#include "../endpoints/device.hpp"
+#include "../endpoints/fp.hpp"
+#include "../endpoints/gamepad.hpp"
+#include "../endpoints/launch.hpp"
+#include "../endpoints/odd.hpp"
+#include "../endpoints/power.hpp"
+#include "../endpoints/remote.hpp"
+#include "../endpoints/sdhc.hpp"
+#include "../endpoints/switch.hpp"
+#include "../endpoints/title.hpp"
+#include "../endpoints/vwii.hpp"
 
 #include "../languages.h"
 #include "../utils/logger.h"
@@ -19,15 +19,11 @@
 
 #include "http.hpp"
 
-#include <avm/cec.h>
 #include <coreinit/thread.h>
 
 #include <nn/ac.h>
-#include <nn/act/client_cpp.h>
 
 #include <notifications/notifications.h>
-#include <sdutils/sdutils.h>
-#include <tve/cec.h>
 
 #include <wups.h>
 #include <wups/config/WUPSConfigItemBoolean.h>
@@ -35,7 +31,6 @@
 #include <wups/config/WUPSConfigItemMultipleValues.h>
 #include <wups/config/WUPSConfigItemStub.h>
 #include <wups/config_api.h>
-#include <wups_backend/api.h>
 
 #include <sys/iosupport.h>
 
@@ -79,24 +74,45 @@ void make_server() {
             return HttpResponse{200, "text/plain", "Ristretto"};
         });
 
+        // Console hardware
+        DeviceEndpoints::registerEndpoints(server);
+        GamepadEndpoints::registerEndpoints(server);
+        PowerEndpoints::registerEndpoints(server);
+
+
+        // CEC
         if (enableCEC) {
-            registerCECEndpoints(server);
+            CECEndpoints::registerEndpoints(server);
         }
 
-        registerAccountEndpoints(server);
-        registerAromaEndpoints(server);
-        registerDeviceEndpoints(server);
-        registerFPEndpoints(server);
-        registerGamepadEndpoints(server);
-        registerLaunchEndpoints(server);
-        registerODDEndpoints(server);
-        registerPowerEndpoints(server);
-        registerRemoteEndpoints(server);
-        registerSDHCEndpoints(server);
-        registerSwitchEndpoints(server);
-        registerTitleEndpoints(server);
 
-        registervWiiEndpoints(server);
+        // Nintendo/Pretendo Network + Services
+        AccountEndpoints::registerEndpoints(server);
+        FPEndpoints::registerEndpoints(server);
+
+
+        // Input
+        RemoteEndpoints::registerEndpoints(server);
+
+
+        // Filesystems and Storage
+        ODDEndpoints::registerEndpoints(server);
+        SDHCEndpoints::registerEndpoints(server);
+
+
+        // Titles
+        LaunchEndpoints::registerEndpoints(server);
+        SwitchEndpoints::registerEndpoints(server);
+        TitleEndpoints::registerEndpoints(server);
+
+
+        // vWii
+        VWiiEndpoints::registerEndpoints(server);
+
+
+        // Custom Firmware
+        AromaEndpoints::registerEndpoints(server);
+
 
         // TODO: Make the port configurable
         server.startListening(8572);
@@ -219,11 +235,14 @@ INITIALIZE_PLUGIN() {
     // Logging only works when compiled with `make DEBUG=1`. See the README for more information.
     WHBLogCafeInit();
     WHBLogUdpInit();
-    NotificationModule_InitLibrary();
-    SDUtils_InitLibrary();
-    WUPSBackend_InitLibrary();
 
     DEBUG_FUNCTION_LINE("Hello world! - Ristretto");
+
+    NotificationModule_InitLibrary();
+
+    SDHCEndpoints::on_initialize_plugin();
+    AromaEndpoints::on_initialize_plugin();
+
 
     WUPSConfigAPIOptionsV1 configOptions = {.name = "Ristretto"};
     if (WUPSConfigAPI_Init(configOptions, ConfigMenuOpenedCallback, ConfigMenuClosedCallback) != WUPSCONFIG_API_RESULT_SUCCESS) {
@@ -241,35 +260,8 @@ INITIALIZE_PLUGIN() {
         DEBUG_FUNCTION_LINE_ERR("SaveStorage failed: %s (%d)", WUPSStorageAPI_GetStatusStr(storageRes), storageRes);
     }
 
-    // One-Touch Play fix attempt: The TV turns on but doesn't switch to the Wii U input.
-    //
-    // The One-Touch Play Fix needs to be here, otherwise it will try to set the input every time an application
-    // starts. There are lots of scenarios this probably isn't good.
-    //
-    // So just enable it (then it will be re-enabled) just to send that request to switch input.
-    // The TV will turn on when the console powers on (because that's the boot process)
-    // but when the Aroma plugin loads, in theory it should turn on the TV and request active source.
     if (enableCEC) {
-        TVECECInit();
-        TVESetCECEnable(true);
-        AVMCECInit();
-        AVMEnableCEC();
-
-        uint8_t params = 0;
-        TVECECSendCommand(TVE_CEC_DEVICE_TV, TVE_CEC_OPCODE_GIVE_PHYSICAL_ADDRESS, &params, 0);
-
-        // See what we got back for that address
-        TVECECLogicalAddress outInitiator;
-        TVECECOpCode outOpCode;
-        uint8_t tvAddress;
-        uint8_t outNumParams;
-        TVECECReceiveCommand(&outInitiator, &outOpCode, &tvAddress, &outNumParams);
-
-        // Request we turn on TV
-        TVECECSendCommand(TVE_CEC_DEVICE_TV, TVE_CEC_OPCODE_TEXT_VIEW_ON, &params, 0);
-
-        // Switch to our source
-        TVECECSendCommand(TVE_CEC_DEVICE_TV, TVE_CEC_OPCODE_ACTIVE_SOURCE, &tvAddress, 1);
+        CECEndpoints::on_initialize_plugin();
     }
 }
 
@@ -277,47 +269,35 @@ INITIALIZE_PLUGIN() {
 DEINITIALIZE_PLUGIN() {
     DEBUG_FUNCTION_LINE("Ristretto deinitializing.");
     stop_server();
-    nn::act::Finalize();
-    WUPSBackend_DeInitLibrary();
-    SDUtils_DeInitLibrary();
+
+    AromaEndpoints::on_deinitialize_plugin();
+    SDHCEndpoints::on_deinitialize_plugin();
+
     NotificationModule_DeInitLibrary();
+
     WHBLogUdpDeinit();
     WHBLogCafeDeinit();
 }
 
 // Connections reset every time an application is launched.
 ON_APPLICATION_START() {
+    if (!enableServer) return;
+
     nn::ac::Initialize();
     nn::ac::ConnectAsync();
-    nn::act::Initialize();
 
-    // CEC seems to be consistent when it starts every time an application starts.
+    AccountEndpoints::on_application_starts();
+
     if (enableCEC) {
-        TVECECInit();
-        TVESetCECEnable(true);
-        AVMCECInit();
-        AVMEnableCEC();
+        CECEndpoints::on_application_starts();
     }
 
-    if (!enableServer) return;
     make_server_on_thread();
 }
 
 ON_APPLICATION_ENDS() {
     if (!enableServer) return;
+
+    AccountEndpoints::on_application_ends();
     stop_server();
 }
-
-DECL_FUNCTION(int32_t, VPADRead, VPADChan chan, VPADStatus *buffers, uint32_t count, VPADReadError *outError) {
-    int result = real_VPADRead(chan, buffers, count, outError);
-    if (*outError == VPAD_READ_SUCCESS) {
-        vpad_battery = buffers->battery;
-        if (button_value != 0) {
-            buffers->hold |= button_value;
-            button_value = 0; // done
-        }
-    }
-    return result;
-}
-
-WUPS_MUST_REPLACE(VPADRead, WUPS_LOADER_LIBRARY_VPAD, VPADRead);

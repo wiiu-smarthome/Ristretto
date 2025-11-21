@@ -1,6 +1,8 @@
-#include "remote.h"
+#include "remote.hpp"
 
-void registerRemoteEndpoints(HttpServer &server) {
+#include "../plugin/globals.h"
+
+void RemoteEndpoints::registerEndpoints(HttpServer &server) {
     // To prevent potential bad behavior, only allow for specific buttons.
 
     // A - 0x8000

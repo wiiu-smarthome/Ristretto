@@ -1,6 +1,11 @@
-#include "power.h"
+#include "power.hpp"
 
-void registerPowerEndpoints(HttpServer &server) {
+#include "../utils/logger.h"
+#include <coreinit/launch.h>
+#include <sysapp/launch.h>
+
+
+void PowerEndpoints::registerEndpoints(HttpServer &server) {
     // Shuts down the console regardless of what state it currently is in.
     server.when("/power/shutdown")->posted([](const HttpRequest &req) {
         DEBUG_FUNCTION_LINE_INFO("Shutting down Wii U.");

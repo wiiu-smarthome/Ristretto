@@ -1,4 +1,12 @@
-#include "launch.h"
+#include "launch.hpp"
+
+#include "../utils/logger.h"
+
+#include <notifications/notifications.h>
+
+#include <sysapp/launch.h>
+#include <sysapp/title.h>
+
 
 inline SysAppSettingsArgs *settingsArgsFromTarget(SYSSettingsJumpToTarget target) {
     SysAppSettingsArgs *ret = new SysAppSettingsArgs;
@@ -8,7 +16,7 @@ inline SysAppSettingsArgs *settingsArgsFromTarget(SYSSettingsJumpToTarget target
     return ret;
 }
 
-void registerLaunchEndpoints(HttpServer &server) {
+void LaunchEndpoints::registerEndpoints(HttpServer &server) {
     // Launches the Wii U Menu
     server.when("/launch/menu")->posted([](const HttpRequest &req) {
         DEBUG_FUNCTION_LINE_INFO("Launching Menu.");

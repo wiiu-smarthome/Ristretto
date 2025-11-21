@@ -1,7 +1,13 @@
-#include "gamepad.h"
+#include "gamepad.hpp"
+
+#include "../plugin/globals.h"
+#include "../utils/logger.h"
+
 #include <nsysccr/cdc.h>
 
-void registerGamepadEndpoints(HttpServer &server) {
+#include <wups.h>
+
+void GamepadEndpoints::registerEndpoints(HttpServer &server) {
     server.when("/gamepad/battery")->requested([](const HttpRequest &req) {
         std::string ret = std::format("{:d}", vpad_battery);
         return HttpResponse{200, "text/plain", ret};
@@ -23,3 +29,17 @@ void registerGamepadEndpoints(HttpServer &server) {
         return HttpResponse{200, "text/plain", std::format("{:d}", version->runningVersion)};
     });
 }
+
+DECL_FUNCTION(int32_t, VPADRead, VPADChan chan, VPADStatus *buffers, uint32_t count, VPADReadError *outError) {
+    int result = real_VPADRead(chan, buffers, count, outError);
+    if (*outError == VPAD_READ_SUCCESS) {
+        vpad_battery = buffers->battery;
+        if (button_value != 0) {
+            buffers->hold |= button_value;
+            button_value = 0; // done
+        }
+    }
+    return result;
+}
+
+WUPS_MUST_REPLACE(VPADRead, WUPS_LOADER_LIBRARY_VPAD, VPADRead);
