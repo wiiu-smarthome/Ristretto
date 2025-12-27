@@ -189,8 +189,9 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
 
     try {
         root.add(WUPSConfigItemBoolean::Create(ENABLE_SERVER_CONFIG_ID, "Enable Server", ENABLE_SERVER_DEFAULT_VALUE, enableServer, enableServerChanged));
-        root.add(WUPSConfigItemBoolean::Create(ENABLE_CEC_CONFIG_ID, "Enable HDMI-CEC", ENABLE_CEC_DEFAULT_VALUE, enableCEC, enableCECChanged));
+        root.add(WUPSConfigItemBoolean::Create(ENABLE_CEC_CONFIG_ID, "Enable HDMI-CEC (experimental)", ENABLE_CEC_DEFAULT_VALUE, enableCEC, enableCECChanged));
         root.add(WUPSConfigItemMultipleValues::CreateFromValue(TITLE_LANG_CONFIG_ID, "Title Language:", TITLE_LANG_DEFAULT_VALUE, titleLang, titleLangMap, titleLangChanged));
+        root.add(WUPSConfigItemStub::Create("DISCLAIMER: You use this plugin at your own risk."));
     } catch (std::exception &e) {
         DEBUG_FUNCTION_LINE_ERR("Creating config menu failed: %s", e.what());
         return WUPSCONFIG_API_CALLBACK_RESULT_ERROR;
