@@ -1,6 +1,7 @@
 #include "launch.hpp"
 
 #include "../utils/logger.h"
+#include "http.hpp"
 
 #include <notifications/notifications.h>
 
@@ -99,6 +100,15 @@ void LaunchEndpoints::registerEndpoints(HttpServer &server) {
     server.when("/launch/settings/tv_connection")->posted([](const HttpRequest &req) {
         _SYSLaunchSettings(settingsArgsFromTarget(SYS_SETTINGS_JUMP_TO_TV_CONNECTION_TYPE));
         return HttpResponse{200};
+    });
+
+    server.when("/launch/settings/wipe_console")->posted([](const HttpRequest &req) {
+        // Not happening.
+        // "Some websites use this response for requests they do not wish to handle, such as automated queries."
+        // - https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/418
+
+        // (Technically this should be 403 but whatever.)
+        return HttpResponse{418};
     });
 
     // Wipe console will not be added. (TODO: Consider ignoring all input if in system settings for security reasons)
