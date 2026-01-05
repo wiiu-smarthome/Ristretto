@@ -1,4 +1,4 @@
-#include "SDHC.hpp"
+#include "sdhc.hpp"
 
 #include <sdutils/sdutils.h>
 
