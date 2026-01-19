@@ -32,7 +32,9 @@ void GamepadEndpoints::registerEndpoints(HttpServer &server) {
 
 DECL_FUNCTION(int32_t, VPADRead, VPADChan chan, VPADStatus *buffers, uint32_t count, VPADReadError *outError) {
     int result = real_VPADRead(chan, buffers, count, outError);
-    if (outError != NULL) {
+
+    // Check for no VPAD error and that buffers were written
+    if (outError != NULL && buffers != NULL && count > 0) {
         if (*outError == VPAD_READ_SUCCESS) {
             vpad_battery = buffers->battery;
             if (button_value != 0) {
