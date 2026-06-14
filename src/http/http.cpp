@@ -157,18 +157,19 @@ bool HttpRequest::parse(std::shared_ptr<IClientStream> stream) {
 /*static*/ std::string HttpHandlerBuilder::getMimeType(std::string name) {
     static std::map<std::string, std::string> mMimeDatabase;
 
+    // Ristretto: commentedout mime types we probably won't use at all
     if (mMimeDatabase.empty()) {
-        mMimeDatabase.insert({"js", "application/javascript"});
-        mMimeDatabase.insert({"pdf", "application/pdf"});
-        mMimeDatabase.insert({"gz", "application/gzip"});
-        mMimeDatabase.insert({"xml", "application/xml"});
+        // mMimeDatabase.insert({"js", "application/javascript"});
+        // mMimeDatabase.insert({"pdf", "application/pdf"});
+        // mMimeDatabase.insert({"gz", "application/gzip"});
+        // mMimeDatabase.insert({"xml", "application/xml"});
         mMimeDatabase.insert({"html", "text/html"});
         mMimeDatabase.insert({"htm", "text/html"});
-        mMimeDatabase.insert({"css", "text/css"});
+        // mMimeDatabase.insert({"css", "text/css"});
         mMimeDatabase.insert({"txt", "text/plain"});
-        mMimeDatabase.insert({"png", "image/png"});
-        mMimeDatabase.insert({"jpg", "image/jpeg"});
-        mMimeDatabase.insert({"jpeg", "image/jpeg"});
+        // mMimeDatabase.insert({"png", "image/png"});
+        // mMimeDatabase.insert({"jpg", "image/jpeg"});
+        // mMimeDatabase.insert({"jpeg", "image/jpeg"});
         mMimeDatabase.insert({"json", "application/json"});
     }
 
